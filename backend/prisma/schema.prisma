@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Teacher {
+  id             Int            @id @default(autoincrement())
+  name           String
+  email          String         @unique
+  password       String
+  teacherClasses TeacherClass[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Student {
+  id                 Int          @id @default(autoincrement())
+  name               String
+  email              String       @unique
+  rollNo             String       @unique
+  parentMobileNumber String?
+  classId            Int
+  class              Class        @relation(fields: [classId], references: [id])
+  attendances        Attendance[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model Class {
+  id             Int            @id @default(autoincrement())
+  name           String         @unique
+  students       Student[]
+  teacherClasses TeacherClass[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model TeacherClass {
+  id        Int      @id @default(autoincrement())
+  teacherId Int
+  classId   Int
+  teacher   Teacher  @relation(fields: [teacherId], references: [id])
+  class     Class    @relation(fields: [classId], references: [id])
+  @@unique([teacherId, classId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  date      DateTime
+  status    String
+  student   Student  @relation(fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
